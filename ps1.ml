@@ -158,7 +158,7 @@ let variance = (fun _ -> failwith "variance not implemented") ;;
 
 (*......................................................................
 Problem 2e: The function "few divisors" takes two integers, x and y, and
-returns true if x has fewer than m divisors (including 1 and x). Note:
+returns true if x has fewer than y divisors (including 1 and x). Note:
 this is NOT the same as x having fewer divisors than y. For example:
 
 few_divisors 17 3;;
