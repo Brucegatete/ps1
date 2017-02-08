@@ -14,23 +14,23 @@ appropriate type. The first one is done for you. Be sure to remove the
 comments from each subproblem and to type check it before submission.
 ......................................................................*)
 
-(* 
-let prob0 : ??? = 42 ;;
+(*
+let prob0 : int = 42 ;;
 
-let prob1a : ??? = let greet y = "Hello " ^ y in greet "World!";;
+let prob1a : string = let greet y = "Hello " ^ y in greet "World!";;
 
-let prob1b : ??? = [Some 4; Some 2; None; Some 3];;
+let prob1b : 'a option list = [Some 4; Some 2; None; Some 3];;
 
-let prob1c : ??? = ((None, Some 42.0), true);;
+let prob1c : (('a * 'b) * bool)  = ((None, Some 42.0), true);;
 *)
 
 let prob0 = "int";;
 
-let prob1a = "???";;
+let prob1a = "string";;
 
-let prob1b = "???";;
+let prob1b = "'a option list";;
 
-let prob1c = "???";;
+let prob1c = "(('a option * int option) * bool )tuple";;
 
 (*......................................................................
 There are several values defined below that do not type check. 
@@ -44,20 +44,33 @@ change the code minimally.
 (*
 let prob1d : string * int list = [("CS", 51); ("CS", 50)];;
 *)
-  
+(*This was wrong because of the misplaced paranthesis that caused the function to expect a tuple of a string and an int list.
+*)
+  let prob1d : (string * int) list = [("CS", 51); ("CS", 50)];;
 (*
+  
 let prob1e : int =
 	let add (x, y) = x + y in
 	if add (4, 3.9) = 10 then 4 else 2;;
+ The expression has a type "float" but the expected expression by Ocaml is an integer
 *)
+let prob1e : float =
+  let add (x, y) = x +. y in
+  if add (4., 3.9) = 10. then 4. else 2.;;
 
 (*
+  The declared values are meant to be tuples containing two strings (string * string) but most of the values of this function are (string * int). Plus, instead of None, the programmer should have used the integer 0.
 let prob1f : (string * string) list =
 	[("January", None); ("February", 1); ("March", None); ("April", None);
   ("May", None); ("June", 1); ("July", None); ("August", None);
   ("September", 3); ("October", 1); ("November", 2); ("December", 3)];;
 *)
 
+(*The declared values are meant to be tuples containing two strings (string * string) but most of the values of this function are (string * int). Plus, instead of None, the programmer should have used the integer 0.*)
+let prob1f : (string * int) list =
+  [("January", 0); ("February", 1); ("March", 0); ("April", 0);
+  ("May", 0); ("June", 1); ("July", 0); ("August", 0);
+  ("September", 3); ("October", 1); ("November", 2); ("December", 3)];;
 (*======================================================================
 Problem 2 - Writing functions
 
@@ -74,7 +87,7 @@ what you've learned so far about efficiency and elegance. You are
 (*......................................................................
 Problem 2a: The function "reversed" takes a list of integers and
 returns true if the list is in decreasing order. The empty list is
-considered to be reversed n this sense. Consecutive elements of the
+considered to be reversed in this sense. Consecutive elements of the
 same value can be considered equal in a reversed list.
 
 Here is its signature: 
@@ -83,7 +96,20 @@ reversed : int list -> bool
 Replace the line below with your own definition of "reversed".
 ......................................................................*)
 
-let reversed = (fun _ -> failwith "reversed not implemented") ;;
+
+
+ let rec reversed_helper x = match x with
+    | [] -> true
+    | _ :: [] -> true
+    | h :: b :: t ->
+        if h < b then false
+        else reversed_helper(b :: t)
+
+ let reversed x = match x with 
+    [] -> true
+    | _::[] -> true
+    | _::_ -> reversed_helper (x);;
+
 
 (*......................................................................
 Problem 2b: The function "merge" takes two integer lists, each
@@ -105,8 +131,14 @@ merge : int list -> int list -> int list
 Replace the line below with your own definition of "merge".
 ......................................................................*)
 
-let merge = (fun _ -> failwith "merge not implemented") ;;
-
+let rec merge x y =
+  match x, y with
+  [], [] -> []
+  | _ :: _, [] -> []
+  | [], _ :: _ -> []
+  | hx :: tx, hy :: ty ->
+  if hx <= hy then hx :: hy :: merge tx ty
+else hy :: hx :: merge tx ty ;;
 (*......................................................................
 Problem 2c: The function "unzip", given a list of integer pairs,
 returns a pair of lists, the first of which contains each first
@@ -118,13 +150,21 @@ unzip [(6,2);(2,4);(5,6)];;
 - : int list * int list = ([6;2;5],[2;4;6])
 
 Here is its signature:
-unzip : (int * int) list -> int list * int list)
+unzip : (int * int) list -> (int list * int list)
 
 Replace the line below with your own definition of "unzip".
 ......................................................................*)
 
-let unzip = (fun _ -> failwith "unzip not implemented") ;;
-
+let rec rev l = 
+  match l with
+  [] -> []
+  | h :: t -> rev t @ [h]
+let unzip l = 
+  let rec unzip_helper (l1,l2) = function
+    | [] -> rev l1, rev l2
+    | (x,y) :: tl -> unzip_helper (x::l1, y::l2) tl
+  in 
+  unzip_helper ([],[]) l;;
 (*......................................................................
 Problem 2d: The function "variance" takes a float list and returns
 None if the list has fewer than two elements. Otherwise, it should
@@ -153,8 +193,24 @@ float list -> float option
 
 Replace the line below with your own definition of "variance".
 ......................................................................*)
-
 let variance = (fun _ -> failwith "variance not implemented") ;;
+
+  (*let rec variance l = 
+  let rec sum l =
+  match l with 
+  [] -> 0.
+  | h :: t -> h +. sum t in 
+  let rec lenght l =
+  match l with
+  [] -> 0.
+  | _h :: t -> 1. +. lenght t in 
+
+  match l with 
+  [] -> None
+  |[_] -> None
+  | h :: t -> Some((1. /. (lenght l -. 1.)) *. (h -. (sum l /. lenght l)) *. (h -. (sum l /. lenght l)) +. variance t );;*)
+
+
 
 (*......................................................................
 Problem 2e: The function "few divisors" takes two integers, x and y, and
@@ -178,7 +234,33 @@ few_divisors : int -> int -> bool
 Replace the line below with your own definition of "few_divisors".
 ......................................................................*)
 
-let few_divisors = (fun _ -> failwith "few_divisors not implemented");;
+
+  let rec mod_0 n l=
+  match l with
+  [] -> []
+  | h :: t -> n mod h :: mod_0 n t
+
+let rec nber_div l =
+  match l with 
+  [] -> 0
+  | _h :: t -> 
+  if _h = 0 then 1 + nber_div t
+else nber_div t
+
+let rec lower n =
+  match n with
+  0 -> []
+  | a -> a :: lower (n -1)
+
+let divisors n =
+  match n with 
+  0 -> 1
+  | 1 -> 0 
+  | n -> nber_div(mod_0 n (lower n))
+
+let few_divisors n l =
+if divisors n < l then true else false;;
+
 
 (*......................................................................
 Problem 2f: The function "concat_list" takes two arguments: sep, a
@@ -201,7 +283,13 @@ concat_list : string -> string list -> string
 Replace the line below with your own definition of "concat_list"
 ......................................................................*)
 
-let concat_list = (fun _ -> (fun _ -> failwith "concat_list not implemented"));;
+let rec concat_list (n: string) (m: string list) : (string)=
+  match n, m with
+  _n, [] -> ""
+  | _n, _b :: [] -> _b
+  | _n, _b :: t -> _b ^ _n  ^  concat_list n t;;
+
+
 
 (*......................................................................
 Problem 2g: One way to compress a list of characters is to use
@@ -234,9 +322,35 @@ Replace the lines below with your own definition of "to_run_length"
 and "from_run_length".
 ......................................................................*)
 
-let to_run_length = (fun _ -> failwith "to_run_length not implemented") ;;
 
-let from_run_length = (fun _ -> failwith "from_run_length not implemented") ;;
+  
+  let rec filter (l: char list) (a : char) =
+  match l with 
+  [] -> []
+  | h :: t -> if h = a then filter t a  
+  else l
+  let rec counter (a: char) (l: char list) : int =
+  match l with
+  [] -> 0
+  | h:: t -> if h = a then 1 + counter a t
+  else 0
+  let rec to_run_length (l: char list) : ((int * char) list) =
+  match l with
+  [] -> []
+  | a :: t -> ((counter a l), a) :: to_run_length (filter t a);;
+
+
+
+
+let rec long (x, y) =
+    match (x, y) with
+    0, _ -> []  
+  | x, y -> y :: long (x -1, y) 
+
+let rec from_run_length l = 
+  match l with
+  [] -> []
+  | h:: t -> long h @ from_run_length t;;
 
 (*======================================================================
 Problem 3: Challenge problem: Permutations
@@ -282,4 +396,4 @@ about your responses and will use them to help guide us in creating
 future assignments.
 ......................................................................*)
 
-let minutes_spent_on_pset () : int = failwith "not provided" ;;
+let minutes_spent_on_pset () : int = 900 ;;
